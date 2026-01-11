@@ -16,10 +16,19 @@ des.mkdir(parents=True, exist_ok=True)
 
 count = 0
 
+years = [2020, 2021, 2022, 2023, 2024, 2025]
+weights_years = [1, 2, 3, 10, 15, 5]
+
+months = list(range(1, 13))
+weights_months = [10, 10] + [1]*(12 - 2)
+
+days = range(1, 32)
+weights_days = ([1]*5 + [10]*2)*4 + [1]*3
+
 while count < 300:
-    year = random.randint(2015, 2025)
-    month = random.randint(1, 12)
-    day = random.randint(1, 31)
+    year = random.choices(years, weights=weights_years, k=1)[0]
+    month = random.choices(months, weights=weights_months, k=1)[0]
+    day = random.choices(days, weights=weights_days, k=1)[0]
 
     hour = random.randint(0, 23)
     minute = random.randint(0, 59)
