@@ -27,6 +27,6 @@ while count < 300:
 
     if valid_date(year, month, day, hour, minute, second):
         
-        file_name = f'{year}{month:02d}{day:02d}-{hour:02d}{minute:02d}{second:02d}.txt'
+        file_name = f'{year}{month:02d}{day:02d}_{hour:02d}{minute:02d}{second:02d}.txt'
         (des / file_name).touch()
         count += 1
