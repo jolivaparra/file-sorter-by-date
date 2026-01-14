@@ -1,8 +1,9 @@
 __pycache__/
 .vscode/
+test/source/
+test/destination/
 
 *.jpg
 *.png
 *.mp3
 *.mp4
-*.txt
