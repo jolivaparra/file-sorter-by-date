@@ -13,32 +13,37 @@ if config_file.exists():
         if src and dst:
             source = Path(src.group(1))
             destination = Path(dst.group(1))
+        else:
+            print('Rutas de origen y destino no encontradas.')
+            input()
+            exit()
 else:
     print('Archivo de configuraciones no encontrado.')
     input()
+    exit()
 
 regex = re.compile(r'(20\d{2})(\d{2})(\d{2})_\d+')
 
 files = source.glob('*.*')
-days = []
+days = {}
 
 for file in files:
     info = regex.search(file.stem)
     if info:
-        days.append(info.groups())
+        if info.groups() not in days:
+            days[info.groups()] = []
 
-files = source.glob('*.*')
+        days[info.groups()].append(file.name)
 
-for file in files:
-    info = regex.search(file.stem)
-    if info:
-        year, month, day = info.groups()
+for date in days:
+    year, month, day = date
 
-        if days.count(info.groups())>4:
-            des = destination / year / f'{year}-{month}-{day}'
-            des.mkdir(parents=True, exist_ok=True)
-            shutil.move(file, des / file.name)
-        else:
-            des = destination / year / f'{year}-{month} Variados'
-            des.mkdir(parents=True, exist_ok=True)
-            shutil.move(file, des / file.name)
+    if len(days[date])>4:
+        dst = destination / year / f'{year}-{month}-{day}'
+    else:
+        dst = destination / year / f'{year}-{month} Variados'
+    
+    dst.mkdir(parents=True, exist_ok=True)
+
+    for file in days[date]:
+        shutil.move(source / file, dst / file)            
