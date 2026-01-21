@@ -46,4 +46,10 @@ for date in days:
     dst.mkdir(parents=True, exist_ok=True)
 
     for file in days[date]:
-        shutil.move(source / file, dst / file)            
+        if (dst / file).exists():
+            if (source / file).stat().st_size==(dst / file).stat().st_size:
+                print(f"Saltando duplicado: {file}")
+                continue
+
+        print(f'Moviendo {file} a: {dst}')
+        shutil.copy2(source / file, dst / file)            
