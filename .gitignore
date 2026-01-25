@@ -7,3 +7,4 @@ test/destination/
 *.png
 *.mp3
 *.mp4
+*.log
