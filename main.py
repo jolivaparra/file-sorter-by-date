@@ -2,8 +2,7 @@ from pathlib import Path
 import re
 import shutil
 from tqdm import tqdm
-
-CONFIG_FILE = Path('config.txt')
+import logging
 
 def load_config(config_file: Path) -> tuple[Path, Path] | None:
     if config_file.exists():
@@ -49,7 +48,16 @@ def should_skip_file(src: Path, dst: Path, file: str) -> bool:
             return True
     return False
 
-def main():
+def main(CONFIG_FILE):
+
+    logging.basicConfig(
+        filename='file-sorter-register.log',
+        filemode='w',                       
+        level=logging.INFO,                  
+        format='%(asctime)s | %(levelname)s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        encoding='utf-8'
+    )
 
     config_data = load_config(CONFIG_FILE)
 
@@ -58,6 +66,10 @@ def main():
 
     source_folder, destination_folder = config_data
     days, total_files = scan_files(source_folder)
+
+    logging.info(f"--- Inicio del proceso ---")
+    logging.info(f"Origen: {source_folder}")
+    logging.info(f"Destino: {destination_folder}")
 
     with tqdm(total=total_files, unit='file', ncols=100) as pbar:
         for date in days:
@@ -70,16 +82,26 @@ def main():
             
             file_dst_folder.mkdir(parents=True, exist_ok=True)
 
+
             for file in days[date]:
                 file_size = (source_folder/file).stat().st_size / 1024**2
                 pbar.set_postfix(file=file[:20],MB=f'{file_size:.2f}')
 
                 if should_skip_file(source_folder, file_dst_folder, file):
                         pbar.update(1)
+                        logging.warning(f"Saltado por duplicado: '{file}'")
                         continue
 
-                shutil.copy2(source_folder / file, file_dst_folder / file)
+                try:
+                    shutil.copy2(source_folder / file, file_dst_folder / file)
+                    logging.info(f"Copiado exitoso '{file}' -> '{file_dst_folder}'")
+                except Exception as e:
+                    logging.error(f"Error procesando '{file}': {e}")                 
+                    tqdm.write(f"Error en '{file}': {e}")
                 pbar.update(1)
+    
+    logging.info(f'Proceso finalizado. Archivos procesados: {total_files}')
+
 
 if __name__=='__main__':
-    main()
+    main(Path('config.txt'))
