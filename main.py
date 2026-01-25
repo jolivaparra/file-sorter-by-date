@@ -16,11 +16,11 @@ def load_config(config_file: Path) -> tuple[Path, Path] | None:
                 destination = Path(dst.group(1))
                 return (source, destination)
             else:
-                print('Rutas de origen y destino no encontradas.')
+                print('Source path not found, or destination path missing.')
                 input()
                 return None
     else:
-        print('Archivo de configuraciones no encontrado.')
+        print("'config.txt' file not found.")
         input()
         return None
 
@@ -67,9 +67,9 @@ def main(CONFIG_FILE):
     source_folder, destination_folder = config_data
     days, total_files = scan_files(source_folder)
 
-    logging.info(f"--- Inicio del proceso ---")
-    logging.info(f"Origen: {source_folder}")
-    logging.info(f"Destino: {destination_folder}")
+    logging.info(f"--- Starting process ---")
+    logging.info(f"Source: {source_folder}")
+    logging.info(f"Destination: {destination_folder}")
 
     with tqdm(total=total_files, unit='file', ncols=100) as pbar:
         for date in days:
@@ -78,7 +78,7 @@ def main(CONFIG_FILE):
             if len(days[date])>4:
                 file_dst_folder = destination_folder / year / f'{year}-{month}-{day}'
             else:
-                file_dst_folder = destination_folder / year / f'{year}-{month} Variados'
+                file_dst_folder = destination_folder / year / f'{year}-{month} Varied'
             
             file_dst_folder.mkdir(parents=True, exist_ok=True)
 
@@ -89,18 +89,19 @@ def main(CONFIG_FILE):
 
                 if should_skip_file(source_folder, file_dst_folder, file):
                         pbar.update(1)
-                        logging.warning(f"Saltado por duplicado: '{file}'")
-                        continue
+                        logging.warning(f"Skipping duplicate: '{file}'")
+                        continue    
 
                 try:
                     shutil.copy2(source_folder / file, file_dst_folder / file)
-                    logging.info(f"Copiado exitoso '{file}' -> '{file_dst_folder}'")
+                    logging.info(f"Copy successful '{file}' -> '{file_dst_folder}'")
                 except Exception as e:
-                    logging.error(f"Error procesando '{file}': {e}")                 
-                    tqdm.write(f"Error en '{file}': {e}")
+                    logging.error(f"Error processing '{file}': {e}")                 
+                    tqdm.write(f"Error in '{file}': {e}")
+
                 pbar.update(1)
     
-    logging.info(f'Proceso finalizado. Archivos procesados: {total_files}')
+    logging.info(f'Process finished. Total files processed: {total_files}')
 
 
 if __name__=='__main__':
